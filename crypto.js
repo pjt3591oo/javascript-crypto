@@ -1,48 +1,73 @@
 ﻿function crypto(txt){
-    var b='';
-    var utc = new Date().getTime()%10;
+    var buf='';
+    var utc = new Date().getTime()%9+1;
 
     var nul="abc";
-    b+=utc;
+    buf+=utc;
     console.log(utc);
     for(var i in txt){
         var ch;
         if(ch=stringCheck(txt[i])){ //문자
             if(StringToNum(txt[i])/100<1) {
-                b+='0'+StringToNum(txt[i]).toString();
+                buf+='0'+StringToNum(txt[i]).toString();
             }
             else{
-                b+=StringToNum(txt[i]);
+                buf+=StringToNum(txt[i]);
             }
         }else{ // 숫자
-                b+=NumToString(txt[i]);
+            buf+=NumToString(txt[i]);
         }
         if(!(i%utc)){
-            console.log('t', i);
-            b+=nul;
+           // console.log('t', i);
+            buf+=nul;
         }
 
     }
-    return  b;
+    return  buf;
 }
 
-function decrypto(txt){
-    var utc = parseInt(txt[0]);
-    var MNumCount=0;
-    var b='';
-   // console.log(utc);
+function decrypto(txt) {
+    var utc = txt[0];
 
-    for(var i in txt){
-        if(i>0){
-            if(stringCheck(txt[i])){ //문자
-                b+=DestringToNum(txt[i]);
-            }else{                  // 숫자
-                if(MNumCount<3){ MNumCount++; continue;}
-                b+=DeNumToString(txt[i]);
-            }
-        }else{continue;}
+    var arr ;
+    var buf='';
+
+    arr=textParsing(txt); //3자리씩 끊는다.
+    buf=encoding(utc,arr);
+    buf=reMake(buf);
+
+    return buf;
+}
+
+function textParsing(txt){
+    var arr=new Array();
+    for (var i = 1; i < txt.length; i += 3) {
+        arr.push(txt.slice(i, i + 3));
     }
-    return b;
+    return arr;
+}
+
+function reMake(txt){
+    var rebuf='';
+    var buf=txt.split('\u0000');
+
+    for(var i in buf){
+        rebuf+=buf[i];
+    }
+    return rebuf;
+}
+
+function encoding(utc,arr){
+    var buf='';
+    for(var i = 0 ; i<arr.length ; i++){
+        if(i%utc || 0==i) {
+            console.log(arr[i],DeNumToString(arr[i]),i%utc);
+            buf += DeNumToString(arr[i]);
+        }else{
+            buf += DeNumToString(arr[i]);
+        }
+    }
+    return buf;
 }
 
 function stringCheck(txt){
@@ -50,25 +75,16 @@ function stringCheck(txt){
 }
 
 function StringToNum(txt){
-    //console.log(txt.charCodeAt(0)+5);
     return (txt.charCodeAt(0)+5);
 }
 
-function DestringToNum(txt){
-    //console.log(txt, txt.charCodeAt(0)-5);
-    return (txt.charCodeAt(0)-5);
-}
-
 function NumToString(txt){
-    //console.log(String.fromCharCode(parseInt(txt)+5));
     return ( String.fromCharCode(parseInt(txt)+5));
 }
 
 function DeNumToString(txt){
-    //console.log(String.fromCharCode(parseInt(txt)-5));
     return ( String.fromCharCode(parseInt(txt)-5));
 }
-console.log(crypto("Asdf7dc9ds"));
+console.log(crypto("Asdfadcvdsadsfgxcv"));
 
-
-//console.log(decrypto(crypto("asdf7dc9ds")));
+console.log(decrypto(crypto("Asdfadcvdsadsfgxcv")));
